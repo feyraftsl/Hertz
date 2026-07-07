@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val appVersionName = (project.findProperty("versionOverride") as String?) ?: "0.5b"
+val appVersionName = (project.findProperty("versionOverride") as String?) ?: "0.8b"
 val appVersionCode =
     appVersionName
         .split(".")

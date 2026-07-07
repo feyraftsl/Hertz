@@ -29,7 +29,7 @@ class MediaRepositoryImpl @Inject constructor(
         MediaStore.Audio.Media.TRACK,
     )
 
-    override fun scan(): List<Track> =
+    override suspend fun scan(): List<Track> =
         buildList {
             runCatching {
                 context.contentResolver.query(

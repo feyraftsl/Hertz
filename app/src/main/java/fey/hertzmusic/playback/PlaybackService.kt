@@ -3,7 +3,11 @@ package fey.hertzmusic.playback
 import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.Bitmap
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
+import android.media.AudioMixerAttributes
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
@@ -12,11 +16,15 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
+import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.util.BitmapLoader
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSourceBitmapLoader
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.analytics.PlaybackStatsListener
+import androidx.media3.exoplayer.audio.AudioSink
+import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.session.CacheBitmapLoader
 import androidx.media3.session.CommandButton
 import androidx.media3.session.DefaultMediaNotificationProvider
@@ -34,6 +42,8 @@ import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.AndroidEntryPoint
 import fey.hertzmusic.MainActivity
 import fey.hertzmusic.R
+import fey.hertzmusic.di.Local
+import fey.hertzmusic.di.Remote
 import fey.hertzmusic.domain.model.LastSession
 import fey.hertzmusic.domain.model.Track
 import fey.hertzmusic.domain.model.toAlbums
@@ -42,6 +52,7 @@ import fey.hertzmusic.domain.repository.MediaRepository
 import fey.hertzmusic.domain.repository.SettingsRepository
 import fey.hertzmusic.domain.repository.StatsRepository
 import fey.hertzmusic.util.albumArtUri
+import fey.hertzmusic.util.audioFormat
 import fey.hertzmusic.util.toMediaItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,11 +60,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
+import android.media.AudioAttributes as MediaAudioAttributes
 
 private const val ROOT_ID = "root"
 private const val TRACKS_ID = "tracks"
@@ -66,7 +79,12 @@ private const val FOLDER_PREFIX = "folder/"
 class PlaybackService : MediaLibraryService() {
 
     @Inject
-    lateinit var mediaRepository: MediaRepository
+    @Local
+    lateinit var localRepository: MediaRepository
+
+    @Inject
+    @Remote
+    lateinit var remoteRepository: MediaRepository
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
@@ -95,6 +113,46 @@ class PlaybackService : MediaLibraryService() {
     @Volatile
     private var libraryCache: List<Track>? = null
 
+    private fun configureBitPerfect(player: Player) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+        
+        val audioManager = getSystemService(AudioManager::class.java) ?: return
+        val usbDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).filter {
+            it.type == AudioDeviceInfo.TYPE_USB_DEVICE || it.type == AudioDeviceInfo.TYPE_USB_HEADSET
+        }
+
+        if (usbDevices.isEmpty()) return
+
+        val device = usbDevices.first()
+        val format = player.audioFormat ?: return
+        
+        val supportedAttributes = audioManager.getSupportedMixerAttributes(device)
+        val bitPerfectAttr = supportedAttributes.find { 
+            it.mixerBehavior == AudioMixerAttributes.MIXER_BEHAVIOR_BIT_PERFECT &&
+            it.format.sampleRate == format.sampleRate &&
+            it.format.channelCount == format.channelCount
+        }
+
+        if (bitPerfectAttr != null) {
+            audioManager.setPreferredMixerAttributes(
+                MediaAudioAttributes.Builder()
+                    .setUsage(MediaAudioAttributes.USAGE_MEDIA)
+                    .setContentType(MediaAudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build(),
+                device,
+                bitPerfectAttr
+            )
+        } else {
+            audioManager.clearPreferredMixerAttributes(
+                MediaAudioAttributes.Builder()
+                    .setUsage(MediaAudioAttributes.USAGE_MEDIA)
+                    .setContentType(MediaAudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build(),
+                device
+            )
+        }
+    }
+
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
@@ -104,7 +162,22 @@ class PlaybackService : MediaLibraryService() {
             },
         )
         val handleAudioFocus = true
-        val player = ExoPlayer.Builder(this)
+
+        val renderersFactory = object : DefaultRenderersFactory(this) {
+            override fun buildAudioSink(
+                context: android.content.Context,
+                enableFloatOutput: Boolean,
+                enableAudioTrackPlaybackParams: Boolean
+            ): AudioSink {
+                return DefaultAudioSink.Builder(context)
+                    .setEnableFloatOutput(true)
+                    .build()
+            }
+        }.apply {
+            setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+        }
+
+        val player = ExoPlayer.Builder(this, renderersFactory)
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -114,6 +187,20 @@ class PlaybackService : MediaLibraryService() {
             )
             .setHandleAudioBecomingNoisy(true)
             .build()
+
+        player.trackSelectionParameters = player.trackSelectionParameters
+            .buildUpon()
+            .setAudioOffloadPreferences(
+                TrackSelectionParameters.AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .build()
+            )
+            .build()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            configureBitPerfect(player)
+        }
+
         val keepPlaybackHistory = false
         player.addAnalyticsListener(
             PlaybackStatsListener(keepPlaybackHistory) { eventTime, playbackStats ->
@@ -144,6 +231,12 @@ class PlaybackService : MediaLibraryService() {
 
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                     saveSession()
+                    configureBitPerfect(player)
+                }
+
+                override fun onPlaybackParametersChanged(playbackParameters: androidx.media3.common.PlaybackParameters) {
+                    // Bit-perfect is often disabled if speed != 1.0
+                    configureBitPerfect(player)
                 }
             },
         )
@@ -160,6 +253,13 @@ class PlaybackService : MediaLibraryService() {
             )
             .setMediaButtonPreferences(sessionButtons(player))
             .build()
+
+        scope.launch {
+            settingsRepository.settings.collect { settings ->
+                // Clear cache if mode changes, so next library() call re-scans
+                libraryCache = null
+            }
+        }
     }
 
     @OptIn(UnstableApi::class)
@@ -194,7 +294,12 @@ class PlaybackService : MediaLibraryService() {
 
     private suspend fun library(): List<Track> =
         libraryCache ?: withContext(Dispatchers.IO) {
-            mediaRepository.scan()
+            val settings = settingsRepository.settings.first()
+            if (settings.onlineMode) {
+                remoteRepository.scan()
+            } else {
+                localRepository.scan()
+            }
         }.also { libraryCache = it }
 
     private fun searchLibrary(tracks: List<Track>, query: String): List<Track> =

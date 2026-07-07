@@ -52,6 +52,7 @@ data class DmtState(
     val tech: List<Spec> = emptyList(),
     val error: String? = null,
     val notice: String? = null,
+    val showUrlDialog: Boolean = false,
 )
 
 sealed interface DmtAction {
@@ -78,6 +79,7 @@ sealed interface DmtAction {
     data object OpenEqualizer : DmtAction
     data object NoEqualizer : DmtAction
     data class Config(val settings: DmtSettings) : DmtAction
+    data class ShowUrlDialog(val show: Boolean) : DmtAction
 }
 
 sealed interface PlayerEffect {

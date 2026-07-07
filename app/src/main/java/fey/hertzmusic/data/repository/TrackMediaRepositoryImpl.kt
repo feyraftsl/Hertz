@@ -22,10 +22,25 @@ class TrackMediaRepositoryImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
 ) : TrackMediaRepository {
 
-    override fun loadArt(uri: Uri): Bitmap? =
-        runCatching {
+    override fun loadArt(uri: Uri): Bitmap? {
+        val bitmap = runCatching {
             context.contentResolver.loadThumbnail(uri, Size(512, 512), null)
         }.getOrNull()
+        if (bitmap != null) return bitmap
+
+        return runCatching {
+            MediaMetadataRetriever().use { retriever ->
+                if (uri.scheme == "http" || uri.scheme == "https") {
+                    retriever.setDataSource(uri.toString(), HashMap<String, String>())
+                } else {
+                    retriever.setDataSource(context, uri)
+                }
+                retriever.embeddedPicture?.let { bytes ->
+                    android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                }
+            }
+        }.getOrNull()
+    }
 
     override fun techSpecs(uri: Uri, track: Track?): List<Spec> {
         var mime = track?.mime.orEmpty()
@@ -35,7 +50,11 @@ class TrackMediaRepositoryImpl @Inject constructor(
         var bits: Int? = null
         runCatching {
             val extractor = MediaExtractor()
-            extractor.setDataSource(context, uri, null)
+            if (uri.scheme == "http" || uri.scheme == "https") {
+                extractor.setDataSource(uri.toString())
+            } else {
+                extractor.setDataSource(context, uri, null)
+            }
             val format = extractor.getTrackFormat(0)
             format.getString(MediaFormat.KEY_MIME)?.let {
                 if (mime.isEmpty() || mime == "audio/?") mime = it
@@ -53,7 +72,11 @@ class TrackMediaRepositoryImpl @Inject constructor(
         }
         runCatching {
             MediaMetadataRetriever().use { retriever ->
-                retriever.setDataSource(context, uri)
+                if (uri.scheme == "http" || uri.scheme == "https") {
+                    retriever.setDataSource(uri.toString(), HashMap<String, String>())
+                } else {
+                    retriever.setDataSource(context, uri)
+                }
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITS_PER_SAMPLE)
                     ?.toIntOrNull()?.takeIf { it > 0 }?.let { bits = it }
                 if (sampleRate == null) {

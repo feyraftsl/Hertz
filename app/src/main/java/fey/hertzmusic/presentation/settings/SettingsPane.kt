@@ -13,24 +13,35 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import fey.hertzmusic.BuildConfig
 import fey.hertzmusic.R
+import fey.hertzmusic.core.base.BaseViewModel
 import fey.hertzmusic.core.common.Caption
+import fey.hertzmusic.core.common.Hairline
 import fey.hertzmusic.core.common.TuiKey
+import fey.hertzmusic.core.common.TuiPanel
 import fey.hertzmusic.core.common.tuiClickable
 import fey.hertzmusic.presentation.player.DmtAction
 import fey.hertzmusic.presentation.player.DmtState
 import fey.hertzmusic.presentation.player.DmtView
 import fey.hertzmusic.ui.theme.LocalAccent
+import fey.hertzmusic.ui.theme.TuiBg
 import fey.hertzmusic.ui.theme.TuiDim
 import fey.hertzmusic.ui.theme.TuiFaint
 import fey.hertzmusic.ui.theme.TuiFg
 import fey.hertzmusic.ui.theme.TuiLine
+import androidx.compose.foundation.text.BasicTextField
 
 private val COVER_COLS_STEPS = listOf(48, 64, 80)
 
@@ -78,6 +89,18 @@ fun SettingsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
                     settings.copy(accent = settings.accent.next()),
                 ),
             )
+        }
+        SettingRow(
+            label = stringResource(R.string.set_online),
+            value = if (settings.onlineMode) on else off,
+        ) {
+            dispatch(DmtAction.Config(settings.copy(onlineMode = !settings.onlineMode)))
+        }
+        SettingRow(
+            label = stringResource(R.string.set_server),
+            value = settings.serverUrl.takeIf { it.isNotBlank() } ?: "---",
+        ) {
+            dispatch(DmtAction.ShowUrlDialog(true))
         }
         Caption(stringResource(R.string.tools))
         SettingRow(
@@ -164,6 +187,64 @@ fun SettingsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 text = " ↗",
                 style = MaterialTheme.typography.labelMedium,
                 color = LocalAccent.current,
+            )
+        }
+    }
+
+    if (state.showUrlDialog) {
+        UrlDialog(
+            current = settings.serverUrl,
+            onDismiss = { dispatch(DmtAction.ShowUrlDialog(false)) },
+            onSave = {
+                dispatch(DmtAction.Config(settings.copy(serverUrl = it)))
+                dispatch(DmtAction.ShowUrlDialog(false))
+            },
+        )
+    }
+}
+
+@Composable
+fun UrlDialog(
+    current: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit,
+) {
+    var text by remember { mutableStateOf(current) }
+    val accent = LocalAccent.current
+
+    Dialog(onDismissRequest = onDismiss) {
+        TuiPanel {
+            Text(
+                text = stringResource(R.string.set_url_title),
+                style = MaterialTheme.typography.labelMedium,
+                color = TuiDim,
+                modifier = Modifier.padding(bottom = 12.dp),
+            )
+            BasicTextField(
+                value = text,
+                onValueChange = { text = it },
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = TuiFg),
+                cursorBrush = SolidColor(accent),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                decorationBox = { inner ->
+                    if (text.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.set_url_hint),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TuiFaint,
+                        )
+                    }
+                    inner()
+                },
+            )
+            Hairline(fraction = 1f, modifier = Modifier.padding(bottom = 20.dp))
+            TuiKey(
+                label = stringResource(R.string.set_url_save),
+                modifier = Modifier.align(Alignment.End),
+                onClick = { onSave(text) },
             )
         }
     }

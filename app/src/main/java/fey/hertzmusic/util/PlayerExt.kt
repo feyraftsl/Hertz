@@ -5,6 +5,8 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
+import androidx.media3.common.C
+import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -100,3 +102,8 @@ fun String.codecLabel(): String =
 fun Int.asKHz(): String = if (this % 1000 == 0) "${this / 1000}K" else "%.1fK".format(this / 1000f)
 
 fun Long.asMB(): String = "%.1fMB".format(this / 1048576f)
+
+val Player.audioFormat: Format?
+    get() = currentTracks.groups
+        .firstOrNull { it.type == C.TRACK_TYPE_AUDIO && it.isSelected }
+        ?.getTrackFormat(0)

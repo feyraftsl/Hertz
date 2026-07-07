@@ -1,4 +1,4 @@
-# hetz
+# hertz
 [![release](https://img.shields.io/github/v/release/feyraftsl/hertz?style=flat-square&color=e07a2f)](https://github.com/feyraftsl/Hertz/releases/latest)
 
 hertz

@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewModelScope
@@ -217,7 +218,10 @@ class PlayerViewModel @Inject constructor(
                 }
                 if (old.cols != intent.settings.cols) loadCover(c?.currentMediaItem)
                 if (old.accent != intent.settings.accent) applyIcon(intent.settings.accent)
+                if (old.onlineMode != intent.settings.onlineMode) scan()
             }
+
+            is DmtAction.ShowUrlDialog -> reduce { it.copy(showUrlDialog = intent.show) }
         }
     }
 

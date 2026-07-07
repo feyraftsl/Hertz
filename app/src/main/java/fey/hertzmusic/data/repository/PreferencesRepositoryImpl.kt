@@ -8,7 +8,9 @@ import fey.hertzmusic.data.source.local.KEY_COLS
 import fey.hertzmusic.data.source.local.KEY_LAST_INDEX
 import fey.hertzmusic.data.source.local.KEY_LAST_POS
 import fey.hertzmusic.data.source.local.KEY_LAST_QUEUE
+import fey.hertzmusic.data.source.local.KEY_ONLINE
 import fey.hertzmusic.data.source.local.KEY_RAW
+import fey.hertzmusic.data.source.local.KEY_SERVER
 import fey.hertzmusic.data.source.local.KEY_SPECS
 import fey.hertzmusic.data.source.local.KEY_SPEED
 import fey.hertzmusic.data.source.local.KEY_STAT_COUNTS
@@ -44,6 +46,8 @@ class PreferencesRepositoryImpl @Inject constructor(
             listSpecs = prefs[KEY_SPECS] ?: true,
             accent = Accent.fromOrdinal(prefs[KEY_ACCENT] ?: 0),
             rawArt = prefs[KEY_RAW] ?: false,
+            onlineMode = prefs[KEY_ONLINE] ?: false,
+            serverUrl = prefs[KEY_SERVER] ?: "",
         )
     }
 
@@ -54,6 +58,8 @@ class PreferencesRepositoryImpl @Inject constructor(
             it[KEY_SPECS] = settings.listSpecs
             it[KEY_ACCENT] = settings.accent.ordinal
             it[KEY_RAW] = settings.rawArt
+            it[KEY_ONLINE] = settings.onlineMode
+            it[KEY_SERVER] = settings.serverUrl
         }
     }
 

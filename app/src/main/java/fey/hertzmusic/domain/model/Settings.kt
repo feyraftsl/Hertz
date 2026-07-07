@@ -20,6 +20,8 @@ data class DmtSettings(
     val listSpecs: Boolean = true,
     val accent: Accent = Accent.ORANGE,
     val rawArt: Boolean = false,
+    val onlineMode: Boolean = false,
+    val serverUrl: String = "",
 )
 
 data class LastSession(
