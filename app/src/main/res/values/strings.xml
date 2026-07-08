@@ -1,6 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Hertz</string>
     <string name="tagline">dear music, thanksssss</string>
+    <string-array name="taglines">
+        <item>dear music, thanks</item>
+        <item>music is the answer</item>
+        <item>your ears deserve better</item>
+        <item>minimalist by design</item>
+        <item>tui inspired, music focused</item>
+        <item>stay in the rhythm</item>
+        <item>for the love of sound</item>
+        <item>to the music</item>
+    </string-array>
 
     <string name="tab_library">1:library</string>
     <string name="tab_artists">2:artists</string>
@@ -45,6 +55,11 @@
     <string name="set_specs">format chips</string>
     <string name="set_raw">raw artwork</string>
     <string name="set_accent">accent</string>
+    <string name="set_online">online mode</string>
+    <string name="set_server">server url</string>
+    <string name="set_url_hint">http://your-server.com</string>
+    <string name="set_url_title">configure server url</string>
+    <string name="set_url_save">[ save ]</string>
     <string name="set_eq">equalizer</string>
     <string name="set_eq_open">open</string>
     <string name="no_eq">no equalizer app found</string>

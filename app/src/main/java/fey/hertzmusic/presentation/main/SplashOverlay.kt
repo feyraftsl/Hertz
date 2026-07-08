@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -83,7 +84,8 @@ fun SplashOverlay(onDone: () -> Unit) {
 
 @Composable
 private fun TypedTagline(onDone: () -> Unit, modifier: Modifier = Modifier) {
-    val tagline = stringResource(R.string.tagline)
+    val taglines = stringArrayResource(R.array.taglines)
+    val tagline = remember { taglines.random() }
     val typed = rememberTypedCount(tagline.length, onDone)
     val cursorAlpha = rememberCursorAlpha()
     val accent = LocalAccent.current

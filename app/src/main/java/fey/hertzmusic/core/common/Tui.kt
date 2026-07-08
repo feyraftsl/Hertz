@@ -187,11 +187,11 @@ fun TuiTab(
 }
 
 @Composable
-fun TuiChip(text: String) {
+fun TuiChip(text: String, color: androidx.compose.ui.graphics.Color = TuiDim) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelSmall,
-        color = TuiDim,
+        color = color,
         modifier = Modifier
             .border(1.dp, TuiLine)
             .padding(horizontal = 6.dp, vertical = 4.dp),
@@ -326,3 +326,5 @@ fun ThinSlider(
         }
     }
 }
+
+
