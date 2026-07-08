@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val appVersionName = (project.findProperty("versionOverride") as String?) ?: "1.0"
+val appVersionName = (project.findProperty("versionOverride") as String?) ?: "0.5b"
 val appVersionCode =
     appVersionName
         .split(".")
@@ -26,17 +26,17 @@ fun signingValue(propertyKey: String, envKey: String): String? =
     keystoreProps?.getProperty(propertyKey) ?: System.getenv(envKey)
 
 base {
-    archivesName.set("dmt-$appVersionName")
+    archivesName.set("hertz-$appVersionName")
 }
 
 android {
-    namespace = "dev.jyotiraditya.dmt"
+    namespace = "fey.hertzmusic"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "dev.jyotiraditya.dmt"
+        applicationId = "fey.hertzmusic"
         minSdk = 31
         targetSdk = 37
         versionCode = appVersionCode
@@ -59,9 +59,7 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = true
-            }
+
             signingConfig =
                 signingConfigs
                     .getByName("release")

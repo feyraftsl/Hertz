@@ -1,9 +1,8 @@
-# dmt
+# hetz
+[![release](https://img.shields.io/github/v/release/feyraftsl/hertz?style=flat-square&color=e07a2f)](https://github.com/feyraftsl/Hertz/releases/latest)
 
-[![telegram](https://img.shields.io/badge/telegram-dmtpanda-26A5E4?style=flat-square&logo=telegram&logoColor=white)](https://t.me/dmtpanda)
-[![release](https://img.shields.io/github/v/release/imjyotiraditya/dmt?style=flat-square&color=e07a2f)](https://github.com/imjyotiraditya/dmt/releases/latest)
-
-dear music, thanks.
+hertz
+dmt fork
 
 a tui-inspired local music player for android. music helped me through a lot,
 this is the thank you note.
@@ -11,7 +10,7 @@ this is the thank you note.
 ## what it does
 
 - plays the music on your phone, nothing leaves the device
-- library, albums and folders tabs, all searchable, long-press anything to queue it
+- library, albums and artists tabs, all searchable, long-press anything to queue it
 - cover art rendered as colored ascii with a light sweep while playing.
   tracks without art get a generated ascii pattern of their own.
   there is a raw artwork toggle if ascii is not your thing
@@ -46,3 +45,7 @@ ci builds signed debug and release apks on every push.
 kotlin, compose, media3, datastore. single state + actions, no magic.
 
 no ads, no analytics, no network permission. it just plays music.
+
+## credits
+
+@imjyotiraditya for making dmt

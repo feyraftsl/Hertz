@@ -1,10 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">dmt</string>
-    <string name="tagline">dear music, thanks</string>
+    <string name="app_name">Hertz</string>
+    <string name="tagline">dear music, thanksssss</string>
 
     <string name="tab_library">1:library</string>
-    <string name="tab_albums">2:albums</string>
-    <string name="tab_files">3:files</string>
+    <string name="tab_artists">2:artists</string>
+    <string name="tab_albums">3:albums</string>
     <string name="auto_tracks">tracks</string>
     <string name="auto_albums">albums</string>
     <string name="auto_folders">folders</string>
@@ -16,6 +16,7 @@
     <string name="scanning">scanning library&#8230;</string>
     <string name="no_match">no match</string>
     <string name="no_audio">no audio files found on this device</string>
+    <string name="no_artists">no artists</string>
     <string name="no_albums">no albums</string>
     <string name="no_files">no folders</string>
 
@@ -64,10 +65,12 @@
     <string name="stat_folders">folders</string>
     <string name="stat_empty">nothing played yet</string>
     <string name="about">about</string>
-    <string name="about_title">dmt · dear music, thanks</string>
+    <string name="about_title">Hertz</string>
     <string name="about_body">a tui-inspired local music player.\nmusic helped a lot; this is the thank-you note.</string>
     <string name="credit">made by jyotiraditya panda</string>
     <string name="credit_url" translatable="false">https://github.com/imjyotiraditya</string>
+    <string name="fey">refined by feyraftsl</string>
+    <string name="fey_url" translatable="false">https://github.com/feyraftsl</string>
 
 
     <string name="info_title">title</string>
@@ -82,6 +85,10 @@
     <plurals name="search_albums_hint">
         <item quantity="one">search %1$d album</item>
         <item quantity="other">search %1$d albums</item>
+    </plurals>
+    <plurals name="search_artists_hint">
+        <item quantity="one">search %1$d artist</item>
+        <item quantity="other">search %1$d artists</item>
     </plurals>
     <plurals name="search_folders_hint">
         <item quantity="one">search %1$d folder</item>
