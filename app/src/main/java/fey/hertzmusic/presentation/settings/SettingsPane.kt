@@ -43,7 +43,7 @@ import fey.hertzmusic.ui.theme.TuiFg
 import fey.hertzmusic.ui.theme.TuiLine
 import androidx.compose.foundation.text.BasicTextField
 
-private val COVER_COLS_STEPS = listOf(48, 64, 80)
+private val COVER_COLS_STEPS = listOf(48, 64, 80, 96)
 
 @Composable
 fun SettingsPane(state: HertzState, dispatch: (HertzAction) -> Unit) {
