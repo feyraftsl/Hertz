@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [main]
+    branches: backup
   pull_request:
   workflow_dispatch:
 
@@ -30,7 +30,7 @@ jobs:
 
       - name: decode keystore
         if: github.event_name != 'pull_request'
-        run: echo "${{ secrets.SIGNING_KEYSTORE }}" | base64 -d > dmt.keystore
+        run: echo "${{ secrets.SIGNING_KEYSTORE }}" | base64 -d > hertz.keystore
 
       - name: resolve version
         id: version
@@ -47,13 +47,13 @@ jobs:
       - name: upload debug apk
         uses: actions/upload-artifact@v7
         with:
-          name: dmt-debug
+          name: hertz-debug
           path: app/build/outputs/apk/debug/*.apk
           archive: false
 
       - name: upload release apk
         uses: actions/upload-artifact@v7
         with:
-          name: dmt-release
+          name: hertz-release
           path: app/build/outputs/apk/release/*.apk
           archive: false
