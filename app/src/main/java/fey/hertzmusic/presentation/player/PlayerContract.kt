@@ -13,6 +13,8 @@ import fey.hertzmusic.domain.model.Track
 
 enum class HertzView { LIBRARY, ARTISTS, ALBUMS, SETTINGS, STATS }
 
+const val DIVIDER_ID = "queue_divider"
+
 data class HertzState(
     val hasPermission: Boolean = false,
     val scanning: Boolean = true,
@@ -39,6 +41,7 @@ data class HertzState(
     val durationMs: Long = 0L,
     val queue: List<String> = emptyList(),
     val queueIndex: Int = 0,
+    val manualQueueCount: Int = 0,
     val album: String = "",
     val cover: Bitmap? = null,
     val artRaw: Bitmap? = null,

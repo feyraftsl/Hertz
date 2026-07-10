@@ -100,42 +100,79 @@ fun QueueList(
 
     LazyColumn(modifier = modifier) {
         itemsIndexed(state.queue) { index, label ->
-            val current = index == state.queueIndex
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .tuiClickable { dispatch(HertzAction.Jump(index)) }
-                    .padding(vertical = 8.dp),
-            ) {
-                Box(
+            if (label == DIVIDER_ID) {
+                QueueDivider()
+            } else {
+                val realIndex = if (state.manualQueueCount > 0 && index > state.queueIndex + state.manualQueueCount) {
+                    index - 1
+                } else {
+                    index
+                }
+                val current = realIndex == state.queueIndex
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .size(6.dp)
-                        .background(if (current) accent else TuiFaint),
-                )
-                Text(
-                    text = " %02d ".format(index + 1),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TuiFaint,
-                )
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (current) TuiBright else TuiDim,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    text = stringResource(R.string.clear),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = TuiFaint,
-                    modifier = Modifier
-                        .tuiClickable { dispatch(HertzAction.RemoveAt(index)) }
-                        .padding(horizontal = 8.dp, vertical = 2.dp),
-                )
+                        .fillMaxWidth()
+                        .tuiClickable { dispatch(HertzAction.Jump(realIndex)) }
+                        .padding(vertical = 8.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .background(if (current) accent else TuiFaint),
+                    )
+                    Text(
+                        text = " %02d ".format(realIndex + 1),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TuiFaint,
+                    )
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (current) TuiBright else TuiDim,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        text = stringResource(R.string.clear),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = TuiFaint,
+                        modifier = Modifier
+                            .tuiClickable { dispatch(HertzAction.RemoveAt(realIndex)) }
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun QueueDivider() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(TuiLine)
+        )
+        Text(
+            text = " queue ",
+            style = MaterialTheme.typography.labelSmall,
+            color = TuiFaint,
+        )
+        Box(
+            modifier = Modifier
+                .weight(3f)
+                .height(1.dp)
+                .background(TuiLine)
+        )
     }
 }
 

@@ -179,13 +179,19 @@ class PlayerViewModel @Inject constructor(
                     startIndex,
                     0L,
                 )
+                reduce { it.copy(manualQueueCount = 0) }
                 shuffleModeEnabled = false
                 prepare()
                 play()
             }
 
             is HertzAction.Enqueue -> c?.run {
-                addMediaItems(intent.list.take(QUEUE_CAP).map { it.toMediaItem() })
+                val insertPos = currentMediaItemIndex + 1 + currentState.manualQueueCount
+                addMediaItems(
+                    insertPos.coerceAtMost(mediaItemCount),
+                    intent.list.take(QUEUE_CAP).map { it.toMediaItem() }
+                )
+                reduce { it.copy(manualQueueCount = it.manualQueueCount + intent.list.size) }
                 prepare()
                 notify(context.getString(R.string.queued, intent.label))
             }
@@ -298,7 +304,18 @@ class PlayerViewModel @Inject constructor(
 
     private val listener = object : Player.Listener {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-            reduce { it.copy(nowPlayingId = mediaItem?.mediaId, error = null) }
+            reduce {
+                val newCount = if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO || reason == Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
+                    (it.manualQueueCount - 1).coerceAtLeast(0)
+                } else {
+                    it.manualQueueCount
+                }
+                it.copy(
+                    nowPlayingId = mediaItem?.mediaId,
+                    error = null,
+                    manualQueueCount = newCount
+                )
+            }
             loadCover(mediaItem)
             loadTech(mediaItem)
             loadLyrics(mediaItem)
@@ -331,7 +348,17 @@ class PlayerViewModel @Inject constructor(
         }
 
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-            controller?.let { c -> reduce { it.copy(queue = c.queueLabels()) } }
+            controller?.let { c ->
+                val labels = c.queueLabels().toMutableList()
+                val count = currentState.manualQueueCount
+                if (count > 0) {
+                    val dividerPos = c.currentMediaItemIndex + 1 + count
+                    if (dividerPos < labels.size) {
+                        labels.add(dividerPos, DIVIDER_ID)
+                    }
+                }
+                reduce { it.copy(queue = labels) }
+            }
         }
 
         override fun onPlayerError(error: PlaybackException) {
@@ -345,6 +372,14 @@ class PlayerViewModel @Inject constructor(
     private fun syncFrom(c: MediaController) {
         viewModelScope.launch {
             val savedShuffle = settingsRepository.savedShuffle()
+            val labels = c.queueLabels().toMutableList()
+            val count = currentState.manualQueueCount
+            if (count > 0) {
+                val dividerPos = c.currentMediaItemIndex + 1 + count
+                if (dividerPos < labels.size) {
+                    labels.add(dividerPos, DIVIDER_ID)
+                }
+            }
             reduce {
                 it.copy(
                     nowPlayingId = c.currentMediaItem?.mediaId,
@@ -355,7 +390,7 @@ class PlayerViewModel @Inject constructor(
                     repeat = c.repeatMode,
                     album = c.mediaMetadata.albumTitle?.toString().orEmpty(),
                     speed = c.playbackParameters.speed,
-                    queue = c.queueLabels(),
+                    queue = labels,
                 )
             }
         }
