@@ -22,6 +22,7 @@ data class HertzSettings(
     val rawArt: Boolean = false,
     val onlineMode: Boolean = false,
     val serverUrl: String = "",
+    val shuffle: Boolean = false,
 )
 
 data class LastSession(

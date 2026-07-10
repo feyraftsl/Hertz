@@ -1,4 +1,4 @@
-package dev.jyotiraditya.dmt.core.common
+package fey.hertzmusic.core.common
 
 import android.graphics.Bitmap
 import android.graphics.Paint

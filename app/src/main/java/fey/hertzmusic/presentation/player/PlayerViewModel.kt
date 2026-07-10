@@ -85,9 +85,10 @@ class PlayerViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val settings = settingsRepository.settings.first()
-            reduce { it.copy(settings = settings) }
-            applyIcon(settings.accent)
+            settingsRepository.settings.collect { settings ->
+                reduce { it.copy(settings = settings, shuffle = settings.shuffle) }
+                applyIcon(settings.accent)
+            }
         }
         viewModelScope.launch {
             statsRepository.stats.collect { stats ->
@@ -162,12 +163,23 @@ class PlayerViewModel @Inject constructor(
 
             is HertzAction.PlayAt -> c?.run {
                 reduce { it.copy(error = null) }
-                val (queue, startIndex) = windowQueue(intent.list, intent.index)
+                val isShuffle = currentState.shuffle
+                val (finalList, finalIndex) = if (isShuffle) {
+                    val mutable = intent.list.toMutableList()
+                    val selected = mutable.removeAt(intent.index)
+                    mutable.shuffle()
+                    mutable.add(0, selected)
+                    mutable to 0
+                } else {
+                    intent.list to intent.index
+                }
+                val (queue, startIndex) = windowQueue(finalList, finalIndex)
                 setMediaItems(
                     queue.map { it.toMediaItem() },
                     startIndex,
                     0L,
                 )
+                shuffleModeEnabled = false
                 prepare()
                 play()
             }
@@ -188,9 +200,19 @@ class PlayerViewModel @Inject constructor(
             HertzAction.Next -> c?.seekToNext()
             HertzAction.Prev -> c?.seekToPrevious()
             HertzAction.ToggleShuffle -> c?.run {
-                shuffleModeEnabled = !shuffleModeEnabled
+                val newValue = !currentState.shuffle
+                reduce { it.copy(shuffle = newValue) }
                 viewModelScope.launch {
-                    settingsRepository.saveShuffle(shuffleModeEnabled)
+                    settingsRepository.saveShuffle(newValue)
+                }
+                if (newValue && mediaItemCount > 1) {
+                    val current = currentMediaItemIndex
+                    val currentPos = currentPosition
+                    val items = (0 until mediaItemCount).map { getMediaItemAt(it) }.toMutableList()
+                    val currentItem = items.removeAt(current)
+                    items.shuffle()
+                    items.add(0, currentItem)
+                    setMediaItems(items, 0, currentPos)
                 }
             }
             HertzAction.CycleRepeat -> c?.cycleRepeat()
@@ -217,7 +239,7 @@ class PlayerViewModel @Inject constructor(
 
             is HertzAction.Config -> {
                 val old = currentState.settings
-                reduce { it.copy(settings = intent.settings) }
+                reduce { it.copy(settings = intent.settings, shuffle = intent.settings.shuffle) }
                 viewModelScope.launch {
                     settingsRepository.save(intent.settings)
                 }
@@ -297,7 +319,7 @@ class PlayerViewModel @Inject constructor(
         }
 
         override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-            reduce { it.copy(shuffle = shuffleModeEnabled) }
+            // Ignore player shuffle mode, we use manual shuffling
         }
 
         override fun onRepeatModeChanged(repeatMode: Int) {
@@ -321,18 +343,21 @@ class PlayerViewModel @Inject constructor(
     }
 
     private fun syncFrom(c: MediaController) {
-        reduce {
-            it.copy(
-                nowPlayingId = c.currentMediaItem?.mediaId,
-                title = c.mediaMetadata.title?.toString() ?: "unknown",
-                artist = c.mediaMetadata.artist?.toString() ?: "unknown artist",
-                isPlaying = c.isPlaying,
-                shuffle = c.shuffleModeEnabled,
-                repeat = c.repeatMode,
-                album = c.mediaMetadata.albumTitle?.toString().orEmpty(),
-                speed = c.playbackParameters.speed,
-                queue = c.queueLabels(),
-            )
+        viewModelScope.launch {
+            val savedShuffle = settingsRepository.savedShuffle()
+            reduce {
+                it.copy(
+                    nowPlayingId = c.currentMediaItem?.mediaId,
+                    title = c.mediaMetadata.title?.toString() ?: "unknown",
+                    artist = c.mediaMetadata.artist?.toString() ?: "unknown artist",
+                    isPlaying = c.isPlaying,
+                    shuffle = savedShuffle,
+                    repeat = c.repeatMode,
+                    album = c.mediaMetadata.albumTitle?.toString().orEmpty(),
+                    speed = c.playbackParameters.speed,
+                    queue = c.queueLabels(),
+                )
+            }
         }
     }
 

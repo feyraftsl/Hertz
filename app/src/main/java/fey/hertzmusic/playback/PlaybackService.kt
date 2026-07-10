@@ -153,9 +153,21 @@ class PlaybackService : MediaLibraryService() {
         }
     }
 
+    private var isShuffle = false
+
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
+        
+        scope.launch {
+            settingsRepository.settings.collect { settings ->
+                isShuffle = settings.shuffle
+                publishButtons()
+                // Clear cache if mode changes, so next library() call re-scans
+                libraryCache = null
+            }
+        }
+        
         setMediaNotificationProvider(
             DefaultMediaNotificationProvider(this).apply {
                 setSmallIcon(R.drawable.ic_stat_hertz)
@@ -202,7 +214,7 @@ class PlaybackService : MediaLibraryService() {
         }
 
         scope.launch {
-            player.shuffleModeEnabled = settingsRepository.savedShuffle()
+            // No longer using player.shuffleModeEnabled
         }
 
         val keepPlaybackHistory = false
@@ -225,10 +237,7 @@ class PlaybackService : MediaLibraryService() {
         player.addListener(
             object : Player.Listener {
                 override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-                    publishButtons()
-                    scope.launch {
-                        settingsRepository.saveShuffle(shuffleModeEnabled)
-                    }
+                    // Manual shuffle mode, ignore internal changes
                 }
 
                 override fun onRepeatModeChanged(repeatMode: Int) = publishButtons()
@@ -262,17 +271,13 @@ class PlaybackService : MediaLibraryService() {
             .setMediaButtonPreferences(sessionButtons(player))
             .build()
 
-        scope.launch {
-            settingsRepository.settings.collect { settings ->
-                // Clear cache if mode changes, so next library() call re-scans
-                libraryCache = null
-            }
-        }
+        // No need for separate collect here, merged above
+
     }
 
     @OptIn(UnstableApi::class)
     private fun sessionButtons(player: Player): List<CommandButton> {
-        val shuffleIcon = if (player.shuffleModeEnabled) {
+        val shuffleIcon = if (isShuffle) {
             CommandButton.ICON_SHUFFLE_ON
         } else {
             CommandButton.ICON_SHUFFLE_OFF
@@ -455,7 +460,22 @@ class PlaybackService : MediaLibraryService() {
                 }
 
                 CMD_TOGGLE_SHUFFLE.customAction -> {
-                    session.player.shuffleModeEnabled = !session.player.shuffleModeEnabled
+                    scope.launch {
+                        val newValue = !settingsRepository.savedShuffle()
+                        settingsRepository.saveShuffle(newValue)
+                        
+                        val player = session.player
+                        if (newValue && player.mediaItemCount > 1) {
+                            val current = player.currentMediaItemIndex
+                            val currentPos = player.currentPosition
+                            val items = (0 until player.mediaItemCount).map { player.getMediaItemAt(it) }.toMutableList()
+                            val currentItem = items.removeAt(current)
+                            items.shuffle()
+                            items.add(0, currentItem)
+                            player.setMediaItems(items, 0, currentPos)
+                        }
+                        publishButtons()
+                    }
                     Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
                 }
 

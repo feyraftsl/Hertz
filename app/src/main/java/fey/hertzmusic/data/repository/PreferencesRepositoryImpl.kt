@@ -49,6 +49,7 @@ class PreferencesRepositoryImpl @Inject constructor(
             rawArt = prefs[KEY_RAW] ?: false,
             onlineMode = prefs[KEY_ONLINE] ?: false,
             serverUrl = prefs[KEY_SERVER] ?: "",
+            shuffle = prefs[KEY_SHUFFLE] ?: false,
         )
     }
 
@@ -61,6 +62,7 @@ class PreferencesRepositoryImpl @Inject constructor(
             it[KEY_RAW] = settings.rawArt
             it[KEY_ONLINE] = settings.onlineMode
             it[KEY_SERVER] = settings.serverUrl
+            it[KEY_SHUFFLE] = settings.shuffle
         }
     }
 
