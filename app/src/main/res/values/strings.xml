@@ -60,6 +60,8 @@
     <string name="set_url_hint">http://your-server.com</string>
     <string name="set_url_title">configure server url</string>
     <string name="set_url_save">[ save ]</string>
+    <string name="filter">filter</string>
+    <string name="set_min_duration">hide songs under</string>
     <string name="set_eq">equalizer</string>
     <string name="set_eq_open">open</string>
     <string name="no_eq">no equalizer app found</string>

@@ -23,6 +23,7 @@ data class HertzSettings(
     val onlineMode: Boolean = false,
     val serverUrl: String = "",
     val shuffle: Boolean = false,
+    val minDuration: Int = 30, // in seconds
 )
 
 data class LastSession(

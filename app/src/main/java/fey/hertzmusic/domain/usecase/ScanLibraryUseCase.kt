@@ -26,7 +26,7 @@ class ScanLibraryUseCase @Inject constructor(
                 remoteRepository.scan()
             } else {
                 localRepository.scan()
-            }
+            }.filter { it.durationMs >= settings.minDuration * 1000L }
             LibrarySnapshot(
                 tracks = tracks,
                 albums = tracks.toAlbums(),

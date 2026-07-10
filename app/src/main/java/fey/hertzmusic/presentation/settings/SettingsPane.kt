@@ -1,14 +1,21 @@
 package fey.hertzmusic.presentation.settings
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,7 +26,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -102,6 +113,13 @@ fun SettingsPane(state: HertzState, dispatch: (HertzAction) -> Unit) {
         ) {
             dispatch(HertzAction.ShowUrlDialog(true))
         }
+
+        Caption(stringResource(R.string.filter))
+        DurationFilterRow(
+            minDuration = settings.minDuration,
+            onChanged = { dispatch(HertzAction.Config(settings.copy(minDuration = it))) }
+        )
+
         Caption(stringResource(R.string.tools))
         SettingRow(
             label = stringResource(R.string.set_eq),
@@ -245,6 +263,114 @@ fun UrlDialog(
                 label = stringResource(R.string.set_url_save),
                 modifier = Modifier.align(Alignment.End),
                 onClick = { onSave(text) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun DurationFilterRow(
+    minDuration: Int,
+    onChanged: (Int) -> Unit
+) {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.set_min_duration),
+                style = MaterialTheme.typography.bodyLarge,
+                color = TuiFg,
+            )
+            Text(
+                text = if (minDuration == 0) "none" else "${minDuration}s",
+                style = MaterialTheme.typography.labelMedium,
+                color = LocalAccent.current
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        TuiDurationSlider(
+            value = minDuration.toFloat(),
+            onValueChange = { onChanged(it.toInt()) },
+            valueRange = 0f..120f,
+            steps = 24
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(TuiLine),
+        )
+    }
+}
+
+@Composable
+private fun TuiDurationSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int = 0
+) {
+    val accent = LocalAccent.current
+    val trackColor = TuiFaint
+    
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(24.dp)
+            .pointerInput(Unit) {
+                detectTapGestures { offset ->
+                    val fraction = (offset.x / size.width).coerceIn(0f, 1f)
+                    val newValue = valueRange.start + fraction * (valueRange.endInclusive - valueRange.start)
+                    onValueChange(newValue)
+                }
+            }
+            .pointerInput(Unit) {
+                detectDragGestures { change, _ ->
+                    change.consume()
+                    val fraction = (change.position.x / size.width).coerceIn(0f, 1f)
+                    val newValue = valueRange.start + fraction * (valueRange.endInclusive - valueRange.start)
+                    onValueChange(newValue)
+                }
+            }
+    ) {
+        val width = constraints.maxWidth.toFloat()
+        val thumbRadius = 6.dp
+        
+        val fraction = ((value - valueRange.start) / (valueRange.endInclusive - valueRange.start)).coerceIn(0f, 1f)
+        val thumbX = fraction * width
+
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerY = size.height / 2
+            
+            // Draw track dots
+            val dotCount = 30
+            val spacing = size.width / (dotCount - 1)
+            for (i in 0 until dotCount) {
+                val x = i * spacing
+                val isActive = x <= thumbX
+                
+                val currentDotSize = if (isActive) 3.dp.toPx() else 2.dp.toPx()
+                val currentColor = if (isActive) Color.White else trackColor
+                
+                drawRect(
+                    color = currentColor,
+                    topLeft = Offset(x - (currentDotSize / 2), centerY - (currentDotSize / 2)),
+                    size = Size(currentDotSize, currentDotSize)
+                )
+            }
+            
+            // Draw thumb (Larger square)
+            drawRect(
+                color = accent,
+                topLeft = Offset(thumbX - 4.dp.toPx(), centerY - 4.dp.toPx()),
+                size = Size(8.dp.toPx(), 8.dp.toPx())
             )
         }
     }

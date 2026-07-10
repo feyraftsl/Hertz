@@ -8,6 +8,7 @@ import fey.hertzmusic.data.source.local.KEY_COLS
 import fey.hertzmusic.data.source.local.KEY_LAST_INDEX
 import fey.hertzmusic.data.source.local.KEY_LAST_POS
 import fey.hertzmusic.data.source.local.KEY_LAST_QUEUE
+import fey.hertzmusic.data.source.local.KEY_MIN_DURATION
 import fey.hertzmusic.data.source.local.KEY_ONLINE
 import fey.hertzmusic.data.source.local.KEY_RAW
 import fey.hertzmusic.data.source.local.KEY_SERVER
@@ -50,6 +51,7 @@ class PreferencesRepositoryImpl @Inject constructor(
             onlineMode = prefs[KEY_ONLINE] ?: false,
             serverUrl = prefs[KEY_SERVER] ?: "",
             shuffle = prefs[KEY_SHUFFLE] ?: false,
+            minDuration = prefs[KEY_MIN_DURATION] ?: 30,
         )
     }
 
@@ -63,6 +65,7 @@ class PreferencesRepositoryImpl @Inject constructor(
             it[KEY_ONLINE] = settings.onlineMode
             it[KEY_SERVER] = settings.serverUrl
             it[KEY_SHUFFLE] = settings.shuffle
+            it[KEY_MIN_DURATION] = settings.minDuration
         }
     }
 
