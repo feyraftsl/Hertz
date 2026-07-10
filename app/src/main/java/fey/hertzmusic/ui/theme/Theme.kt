@@ -35,7 +35,7 @@ private val TuiColorScheme = darkColorScheme(
 )
 
 @Composable
-fun DMTTheme(content: @Composable () -> Unit) {
+fun HertzTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = TuiColorScheme,
         typography = Typography,

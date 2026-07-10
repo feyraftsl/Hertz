@@ -20,8 +20,8 @@ import fey.hertzmusic.core.common.ListRow
 import fey.hertzmusic.core.common.SearchRow
 import fey.hertzmusic.core.common.tuiClickable
 import fey.hertzmusic.domain.model.Artist
-import fey.hertzmusic.presentation.player.DmtAction
-import fey.hertzmusic.presentation.player.DmtState
+import fey.hertzmusic.presentation.player.HertzAction
+import fey.hertzmusic.presentation.player.HertzState
 import fey.hertzmusic.ui.theme.TuiDim
 import fey.hertzmusic.ui.theme.TuiFg
 import fey.hertzmusic.ui.theme.TuiLine
@@ -29,7 +29,7 @@ import fey.hertzmusic.ui.theme.TuiSurface
 import fey.hertzmusic.util.asTime
 
 @Composable
-fun ArtistsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
+fun ArtistsPane(state: HertzState, dispatch: (HertzAction) -> Unit) {
     val artist: Artist? = state.artists.find { it.name == state.openArtist }
 
     if (artist == null) {
@@ -40,7 +40,7 @@ fun ArtistsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
 }
 
 @Composable
-private fun ArtistList(state: DmtState, dispatch: (DmtAction) -> Unit) {
+private fun ArtistList(state: HertzState, dispatch: (HertzAction) -> Unit) {
     if (state.artists.isEmpty()) {
         Caption(stringResource(R.string.no_artists))
         return
@@ -55,7 +55,7 @@ private fun ArtistList(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 state.artists.size,
             ),
             shown = state.filteredArtists.size,
-            onQuery = { dispatch(DmtAction.Query(it)) },
+            onQuery = { dispatch(HertzAction.Query(it)) },
         )
         if (state.filteredArtists.isEmpty()) {
             Caption(stringResource(R.string.no_match))
@@ -67,8 +67,8 @@ private fun ArtistList(state: DmtState, dispatch: (DmtAction) -> Unit) {
                     line1 = a.name,
                     line2 = "${a.tracks.size} trk".lowercase(),
                     current = false,
-                    onClick = { dispatch(DmtAction.OpenArtist(a.name)) },
-                    onLongClick = { dispatch(DmtAction.Enqueue(a.tracks, a.name)) },
+                    onClick = { dispatch(HertzAction.OpenArtist(a.name)) },
+                    onLongClick = { dispatch(HertzAction.Enqueue(a.tracks, a.name)) },
                 )
             }
         }
@@ -78,8 +78,8 @@ private fun ArtistList(state: DmtState, dispatch: (DmtAction) -> Unit) {
 @Composable
 private fun ArtistDetail(
     artist: Artist,
-    state: DmtState,
-    dispatch: (DmtAction) -> Unit,
+    state: HertzState,
+    dispatch: (HertzAction) -> Unit,
 ) {
     LazyColumn {
         item {
@@ -91,7 +91,7 @@ private fun ArtistDetail(
                     .padding(top = 6.dp)
                     .border(1.dp, TuiLine)
                     .background(TuiSurface.copy(alpha = 0.6f))
-                    .tuiClickable { dispatch(DmtAction.OpenArtist(null)) }
+                    .tuiClickable { dispatch(HertzAction.OpenArtist(null)) }
                     .padding(horizontal = 12.dp, vertical = 7.dp),
             )
             Text(
@@ -109,7 +109,7 @@ private fun ArtistDetail(
                 line1 = track.title,
                 line2 = "${track.album} · ${track.durationMs.asTime()}".lowercase(),
                 current = track.id.toString() == state.nowPlayingId,
-                onClick = { dispatch(DmtAction.PlayAt(artist.tracks, index)) },
+                onClick = { dispatch(HertzAction.PlayAt(artist.tracks, index)) },
             )
         }
     }

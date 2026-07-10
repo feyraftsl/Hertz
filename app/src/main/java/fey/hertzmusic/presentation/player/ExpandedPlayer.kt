@@ -85,8 +85,8 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ExpandedPlayer(
-    state: DmtState,
-    dispatch: (DmtAction) -> Unit,
+    state: HertzState,
+    dispatch: (HertzAction) -> Unit,
     onInfo: () -> Unit,
     onQueue: () -> Unit,
 ) {
@@ -119,7 +119,7 @@ fun ExpandedPlayer(
                     onDragEnd = {
                         scope.launch {
                             if (dragOffset.value > dismissThreshold) {
-                                dispatch(DmtAction.Expand(false))
+                                dispatch(HertzAction.Expand(false))
                             }
                             dragOffset.animateTo(0f, tween(200))
                         }
@@ -164,8 +164,8 @@ fun ExpandedPlayer(
 
 @Composable
 private fun PortraitPlayer(
-    state: DmtState,
-    dispatch: (DmtAction) -> Unit,
+    state: HertzState,
+    dispatch: (HertzAction) -> Unit,
     onInfo: () -> Unit,
     onQueue: () -> Unit,
     showLyrics: Boolean,
@@ -204,8 +204,8 @@ private fun PortraitPlayer(
 
 @Composable
 private fun LandscapePlayer(
-    state: DmtState,
-    dispatch: (DmtAction) -> Unit,
+    state: HertzState,
+    dispatch: (HertzAction) -> Unit,
     onInfo: () -> Unit,
     onQueue: () -> Unit,
     showLyrics: Boolean,
@@ -254,7 +254,7 @@ private fun LandscapePlayer(
 
 @Composable
 private fun PlayerRail(
-    dispatch: (DmtAction) -> Unit,
+    dispatch: (HertzAction) -> Unit,
     onInfo: () -> Unit,
     hasLyrics: Boolean,
     showLyrics: Boolean,
@@ -271,7 +271,7 @@ private fun PlayerRail(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.TopCenter),
-            onClick = { dispatch(DmtAction.Expand(false)) },
+            onClick = { dispatch(HertzAction.Expand(false)) },
         )
 
         Text(
@@ -307,7 +307,7 @@ private fun PlayerRail(
 }
 
 @Composable
-private fun ControlsBlock(state: DmtState, dispatch: (DmtAction) -> Unit) {
+private fun ControlsBlock(state: HertzState, dispatch: (HertzAction) -> Unit) {
     TrackMeta(state)
     SeekRow(state, dispatch)
     TransportRow(state, dispatch)
@@ -316,7 +316,7 @@ private fun ControlsBlock(state: DmtState, dispatch: (DmtAction) -> Unit) {
 
 @Composable
 private fun PlayerHeader(
-    dispatch: (DmtAction) -> Unit,
+    dispatch: (HertzAction) -> Unit,
     onInfo: () -> Unit,
     hasLyrics: Boolean,
     showLyrics: Boolean,
@@ -330,7 +330,7 @@ private fun PlayerHeader(
         Box(modifier = Modifier.align(Alignment.CenterStart)) {
             TuiKey(
                 label = stringResource(R.string.close),
-                onClick = { dispatch(DmtAction.Expand(false)) },
+                onClick = { dispatch(HertzAction.Expand(false)) },
             )
         }
         Text(
@@ -361,8 +361,8 @@ private fun PlayerHeader(
 
 @Composable
 private fun ArtSlot(
-    state: DmtState,
-    dispatch: (DmtAction) -> Unit,
+    state: HertzState,
+    dispatch: (HertzAction) -> Unit,
     showLyrics: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -375,7 +375,7 @@ private fun ArtSlot(
             durationMs = state.durationMs,
             isPlaying = state.isPlaying,
             contentAspect = aspect,
-            onSeekFraction = { dispatch(DmtAction.Seek(it)) },
+            onSeekFraction = { dispatch(HertzAction.Seek(it)) },
             modifier = modifier,
         )
     } else {
@@ -384,7 +384,7 @@ private fun ArtSlot(
 }
 
 @Composable
-private fun CoverPanel(state: DmtState, modifier: Modifier = Modifier) {
+private fun CoverPanel(state: HertzState, modifier: Modifier = Modifier) {
     val rawArt = state.artRaw
 
     TuiPanel(modifier = modifier) {
@@ -429,7 +429,7 @@ private fun CoverPanel(state: DmtState, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun TrackMeta(state: DmtState) {
+private fun TrackMeta(state: HertzState) {
     val cursorAlpha = rememberCursorAlpha()
     val accent = LocalAccent.current
     Text(
@@ -498,7 +498,7 @@ private fun TrackMeta(state: DmtState) {
 }
 
 @Composable
-private fun SeekRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
+private fun SeekRow(state: HertzState, dispatch: (HertzAction) -> Unit) {
     var scrub by remember { mutableStateOf<Float?>(null) }
     var seekPending by remember { mutableStateOf(false) }
     val accent = LocalAccent.current
@@ -544,7 +544,7 @@ private fun SeekRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 if (it != null) seekPending = false
             },
             onSeek = {
-                dispatch(DmtAction.Seek(it))
+                dispatch(HertzAction.Seek(it))
                 seekPending = true
             },
             modifier = Modifier
@@ -560,7 +560,7 @@ private fun SeekRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
 }
 
 @Composable
-private fun TransportRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
+private fun TransportRow(state: HertzState, dispatch: (HertzAction) -> Unit) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -572,7 +572,7 @@ private fun TransportRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
             label = "|<<",
             big = true,
         ) {
-            dispatch(DmtAction.Prev)
+            dispatch(HertzAction.Prev)
         }
         Spacer(modifier = Modifier.width(14.dp))
         TuiKey(
@@ -580,20 +580,20 @@ private fun TransportRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
             bright = true,
             big = true,
         ) {
-            dispatch(DmtAction.TogglePlay)
+            dispatch(HertzAction.TogglePlay)
         }
         Spacer(modifier = Modifier.width(14.dp))
         TuiKey(
             label = ">>|",
             big = true,
         ) {
-            dispatch(DmtAction.Next)
+            dispatch(HertzAction.Next)
         }
     }
 }
 
 @Composable
-private fun StatusRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
+private fun StatusRow(state: HertzState, dispatch: (HertzAction) -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -609,7 +609,7 @@ private fun StatusRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 value = if (state.shuffle) "on" else "off",
                 on = state.shuffle,
             ) {
-                dispatch(DmtAction.ToggleShuffle)
+                dispatch(HertzAction.ToggleShuffle)
             }
             Spacer(modifier = Modifier.width(10.dp))
             TuiStatus(
@@ -621,7 +621,7 @@ private fun StatusRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 },
                 on = state.repeat != Player.REPEAT_MODE_OFF,
             ) {
-                dispatch(DmtAction.CycleRepeat)
+                dispatch(HertzAction.CycleRepeat)
             }
         }
 
@@ -640,7 +640,7 @@ private fun StatusRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 },
                 on = state.sleepMinutes != 0,
             ) {
-                dispatch(DmtAction.CycleSleep)
+                dispatch(HertzAction.CycleSleep)
             }
             Spacer(modifier = Modifier.width(10.dp))
             TuiStatus(
@@ -648,14 +648,14 @@ private fun StatusRow(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 value = "${state.speed}x",
                 on = abs(state.speed - 1f) > 0.01f,
             ) {
-                dispatch(DmtAction.CycleSpeed)
+                dispatch(HertzAction.CycleSpeed)
             }
         }
     }
 }
 
 @Composable
-private fun QueueFooter(state: DmtState, onQueue: () -> Unit) {
+private fun QueueFooter(state: HertzState, onQueue: () -> Unit) {
     val next = state.queue.getOrNull(state.queueIndex + 1)
     Row(
         verticalAlignment = Alignment.CenterVertically,

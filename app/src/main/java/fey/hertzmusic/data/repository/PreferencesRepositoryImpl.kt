@@ -17,12 +17,12 @@ import fey.hertzmusic.data.source.local.KEY_SPEED
 import fey.hertzmusic.data.source.local.KEY_STAT_COUNTS
 import fey.hertzmusic.data.source.local.KEY_STAT_TOTAL
 import fey.hertzmusic.data.source.local.KEY_WAVE
-import fey.hertzmusic.data.source.local.dmtStore
+import fey.hertzmusic.data.source.local.hertzStore
 import fey.hertzmusic.data.source.local.encodeCounts
 import fey.hertzmusic.data.source.local.toCounts
 import fey.hertzmusic.domain.model.Accent
-import fey.hertzmusic.domain.model.DmtSettings
-import fey.hertzmusic.domain.model.DmtStats
+import fey.hertzmusic.domain.model.HertzSettings
+import fey.hertzmusic.domain.model.HertzStats
 import fey.hertzmusic.domain.model.LastSession
 import fey.hertzmusic.domain.repository.SettingsRepository
 import fey.hertzmusic.domain.repository.StatsRepository
@@ -40,8 +40,8 @@ class PreferencesRepositoryImpl @Inject constructor(
 ) : SettingsRepository,
     StatsRepository {
 
-    override val settings: Flow<DmtSettings> = context.dmtStore.data.map { prefs ->
-        DmtSettings(
+    override val settings: Flow<HertzSettings> = context.hertzStore.data.map { prefs ->
+        HertzSettings(
             wave = prefs[KEY_WAVE] ?: true,
             cols = prefs[KEY_COLS] ?: 64,
             listSpecs = prefs[KEY_SPECS] ?: true,
@@ -52,8 +52,8 @@ class PreferencesRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun save(settings: DmtSettings) {
-        context.dmtStore.edit {
+    override suspend fun save(settings: HertzSettings) {
+        context.hertzStore.edit {
             it[KEY_WAVE] = settings.wave
             it[KEY_COLS] = settings.cols
             it[KEY_SPECS] = settings.listSpecs
@@ -64,20 +64,20 @@ class PreferencesRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun savedSpeed(): Float = context.dmtStore.data.first()[KEY_SPEED] ?: 1f
+    override suspend fun savedSpeed(): Float = context.hertzStore.data.first()[KEY_SPEED] ?: 1f
 
     override suspend fun saveSpeed(speed: Float) {
-        context.dmtStore.edit { it[KEY_SPEED] = speed }
+        context.hertzStore.edit { it[KEY_SPEED] = speed }
     }
 
-    override suspend fun savedShuffle(): Boolean = context.dmtStore.data.first()[KEY_SHUFFLE] ?: false
+    override suspend fun savedShuffle(): Boolean = context.hertzStore.data.first()[KEY_SHUFFLE] ?: false
 
     override suspend fun saveShuffle(enabled: Boolean) {
-        context.dmtStore.edit { it[KEY_SHUFFLE] = enabled }
+        context.hertzStore.edit { it[KEY_SHUFFLE] = enabled }
     }
 
     override suspend fun lastSession(): LastSession? {
-        val prefs = context.dmtStore.data.first()
+        val prefs = context.hertzStore.data.first()
         val ids = (prefs[KEY_LAST_QUEUE] ?: "")
             .split(',')
             .mapNotNull { it.toLongOrNull() }
@@ -90,7 +90,7 @@ class PreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveSession(session: LastSession) {
-        context.dmtStore.edit { prefs ->
+        context.hertzStore.edit { prefs ->
             prefs[KEY_LAST_QUEUE] = session.queueIds.joinToString(",")
             prefs[KEY_LAST_INDEX] = session.index
             prefs[KEY_LAST_POS] = session.positionMs
@@ -98,7 +98,7 @@ class PreferencesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun recordPlayback(playedMs: Long, trackId: Long?) {
-        context.dmtStore.edit { prefs ->
+        context.hertzStore.edit { prefs ->
             prefs[KEY_STAT_TOTAL] = (prefs[KEY_STAT_TOTAL] ?: 0L) + playedMs
             if (playedMs >= COUNTED_LISTEN_MS && trackId != null) {
                 val counts = (prefs[KEY_STAT_COUNTS] ?: "").toCounts().toMutableMap()
@@ -108,8 +108,8 @@ class PreferencesRepositoryImpl @Inject constructor(
         }
     }
 
-    override val stats: Flow<DmtStats> = context.dmtStore.data.map { prefs ->
-        DmtStats(
+    override val stats: Flow<HertzStats> = context.hertzStore.data.map { prefs ->
+        HertzStats(
             totalMs = prefs[KEY_STAT_TOTAL] ?: 0L,
             counts = (prefs[KEY_STAT_COUNTS] ?: "").toCounts(),
         )

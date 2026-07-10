@@ -35,8 +35,8 @@ import fey.hertzmusic.util.asTime
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MiniPlayer(
-    state: DmtState,
-    dispatch: (DmtAction) -> Unit,
+    state: HertzState,
+    dispatch: (HertzAction) -> Unit,
     onLongPress: () -> Unit,
 ) {
     val fraction =
@@ -50,7 +50,7 @@ fun MiniPlayer(
             .combinedClickable(
                 interactionSource = null,
                 indication = null,
-                onClick = { dispatch(DmtAction.Expand(true)) },
+                onClick = { dispatch(HertzAction.Expand(true)) },
                 onLongClick = onLongPress,
             )
             .padding(horizontal = 12.dp, vertical = 10.dp),
@@ -97,9 +97,9 @@ fun MiniPlayer(
                 color = TuiFaint,
                 modifier = Modifier.padding(end = 10.dp),
             )
-            TuiKey(if (state.isPlaying) "||" else "|>") { dispatch(DmtAction.TogglePlay) }
+            TuiKey(if (state.isPlaying) "||" else "|>") { dispatch(HertzAction.TogglePlay) }
             Spacer(modifier = Modifier.width(8.dp))
-            TuiKey(">>|") { dispatch(DmtAction.Next) }
+            TuiKey(">>|") { dispatch(HertzAction.Next) }
         }
     }
 }

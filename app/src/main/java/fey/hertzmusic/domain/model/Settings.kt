@@ -14,7 +14,7 @@ enum class Accent(val label: String, val launcherAlias: String) {
     }
 }
 
-data class DmtSettings(
+data class HertzSettings(
     val wave: Boolean = true,
     val cols: Int = 64,
     val listSpecs: Boolean = true,

@@ -11,15 +11,15 @@ import fey.hertzmusic.core.common.Caption
 import fey.hertzmusic.core.common.ListRow
 import fey.hertzmusic.core.common.SearchRow
 import fey.hertzmusic.core.common.TuiKey
-import fey.hertzmusic.presentation.player.DmtAction
-import fey.hertzmusic.presentation.player.DmtState
+import fey.hertzmusic.presentation.player.HertzAction
+import fey.hertzmusic.presentation.player.HertzState
 import fey.hertzmusic.util.asTime
 
 @Composable
-fun LibraryPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
+fun LibraryPane(state: HertzState, dispatch: (HertzAction) -> Unit) {
     if (state.tracks.isEmpty()) {
         Caption(stringResource(R.string.no_audio))
-        TuiKey(stringResource(R.string.rescan)) { dispatch(DmtAction.Rescan) }
+        TuiKey(stringResource(R.string.rescan)) { dispatch(HertzAction.Rescan) }
         return
     }
 
@@ -32,7 +32,7 @@ fun LibraryPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 state.tracks.size,
             ),
             shown = state.filtered.size,
-            onQuery = { dispatch(DmtAction.Query(it)) },
+            onQuery = { dispatch(HertzAction.Query(it)) },
         )
         if (state.filtered.isEmpty()) {
             Caption(stringResource(R.string.no_match))
@@ -44,8 +44,8 @@ fun LibraryPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
                     line1 = track.title,
                     line2 = "${track.artist} · ${track.durationMs.asTime()}".lowercase(),
                     current = track.id.toString() == state.nowPlayingId,
-                    onClick = { dispatch(DmtAction.PlayAt(state.filtered, index)) },
-                    onLongClick = { dispatch(DmtAction.Enqueue(listOf(track), track.title)) },
+                    onClick = { dispatch(HertzAction.PlayAt(state.filtered, index)) },
+                    onLongClick = { dispatch(HertzAction.Enqueue(listOf(track), track.title)) },
                 )
             }
         }

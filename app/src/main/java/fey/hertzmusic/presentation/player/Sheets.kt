@@ -92,8 +92,8 @@ fun SheetHeader(title: String, meta: String? = null) {
 
 @Composable
 fun QueueList(
-    state: DmtState,
-    dispatch: (DmtAction) -> Unit,
+    state: HertzState,
+    dispatch: (HertzAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val accent = LocalAccent.current
@@ -105,7 +105,7 @@ fun QueueList(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .tuiClickable { dispatch(DmtAction.Jump(index)) }
+                    .tuiClickable { dispatch(HertzAction.Jump(index)) }
                     .padding(vertical = 8.dp),
             ) {
                 Box(
@@ -131,7 +131,7 @@ fun QueueList(
                     style = MaterialTheme.typography.labelMedium,
                     color = TuiFaint,
                     modifier = Modifier
-                        .tuiClickable { dispatch(DmtAction.RemoveAt(index)) }
+                        .tuiClickable { dispatch(HertzAction.RemoveAt(index)) }
                         .padding(horizontal = 8.dp, vertical = 2.dp),
                 )
             }
@@ -140,7 +140,7 @@ fun QueueList(
 }
 
 @Composable
-fun InfoContent(state: DmtState) {
+fun InfoContent(state: HertzState) {
     val track: Track? = state.tracks.find { it.id.toString() == state.nowPlayingId }
 
     InfoRow(

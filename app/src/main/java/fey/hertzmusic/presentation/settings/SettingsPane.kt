@@ -32,9 +32,9 @@ import fey.hertzmusic.core.common.Hairline
 import fey.hertzmusic.core.common.TuiKey
 import fey.hertzmusic.core.common.TuiPanel
 import fey.hertzmusic.core.common.tuiClickable
-import fey.hertzmusic.presentation.player.DmtAction
-import fey.hertzmusic.presentation.player.DmtState
-import fey.hertzmusic.presentation.player.DmtView
+import fey.hertzmusic.presentation.player.HertzAction
+import fey.hertzmusic.presentation.player.HertzState
+import fey.hertzmusic.presentation.player.HertzView
 import fey.hertzmusic.ui.theme.LocalAccent
 import fey.hertzmusic.ui.theme.TuiBg
 import fey.hertzmusic.ui.theme.TuiDim
@@ -46,7 +46,7 @@ import androidx.compose.foundation.text.BasicTextField
 private val COVER_COLS_STEPS = listOf(48, 64, 80)
 
 @Composable
-fun SettingsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
+fun SettingsPane(state: HertzState, dispatch: (HertzAction) -> Unit) {
     val settings = state.settings
     val on = stringResource(R.string.on)
     val off = stringResource(R.string.off)
@@ -58,7 +58,7 @@ fun SettingsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
             label = stringResource(R.string.set_wave),
             value = if (settings.wave) on else off,
         ) {
-            dispatch(DmtAction.Config(settings.copy(wave = !settings.wave)))
+            dispatch(HertzAction.Config(settings.copy(wave = !settings.wave)))
         }
         SettingRow(
             label = stringResource(R.string.set_detail),
@@ -66,26 +66,26 @@ fun SettingsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
         ) {
             val currentIndex = COVER_COLS_STEPS.indexOf(settings.cols)
             val next = COVER_COLS_STEPS[(currentIndex + 1).mod(COVER_COLS_STEPS.size)]
-            dispatch(DmtAction.Config(settings.copy(cols = next)))
+            dispatch(HertzAction.Config(settings.copy(cols = next)))
         }
         SettingRow(
             label = stringResource(R.string.set_raw),
             value = if (settings.rawArt) on else off,
         ) {
-            dispatch(DmtAction.Config(settings.copy(rawArt = !settings.rawArt)))
+            dispatch(HertzAction.Config(settings.copy(rawArt = !settings.rawArt)))
         }
         SettingRow(
             label = stringResource(R.string.set_specs),
             value = if (settings.listSpecs) on else off,
         ) {
-            dispatch(DmtAction.Config(settings.copy(listSpecs = !settings.listSpecs)))
+            dispatch(HertzAction.Config(settings.copy(listSpecs = !settings.listSpecs)))
         }
         SettingRow(
             label = stringResource(R.string.set_accent),
             value = settings.accent.label,
         ) {
             dispatch(
-                DmtAction.Config(
+                HertzAction.Config(
                     settings.copy(accent = settings.accent.next()),
                 ),
             )
@@ -94,32 +94,32 @@ fun SettingsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
             label = stringResource(R.string.set_online),
             value = if (settings.onlineMode) on else off,
         ) {
-            dispatch(DmtAction.Config(settings.copy(onlineMode = !settings.onlineMode)))
+            dispatch(HertzAction.Config(settings.copy(onlineMode = !settings.onlineMode)))
         }
         SettingRow(
             label = stringResource(R.string.set_server),
             value = settings.serverUrl.takeIf { it.isNotBlank() } ?: "---",
         ) {
-            dispatch(DmtAction.ShowUrlDialog(true))
+            dispatch(HertzAction.ShowUrlDialog(true))
         }
         Caption(stringResource(R.string.tools))
         SettingRow(
             label = stringResource(R.string.set_eq),
             value = stringResource(R.string.set_eq_open),
         ) {
-            dispatch(DmtAction.OpenEqualizer)
+            dispatch(HertzAction.OpenEqualizer)
         }
         SettingRow(
             label = stringResource(R.string.stats),
             value = stringResource(R.string.stat_view),
         ) {
-            dispatch(DmtAction.Show(DmtView.STATS))
+            dispatch(HertzAction.Show(HertzView.STATS))
         }
         SettingRow(
             label = stringResource(R.string.set_rescan),
             value = stringResource(R.string.run),
         ) {
-            dispatch(DmtAction.Rescan)
+            dispatch(HertzAction.Rescan)
         }
 
         Caption(stringResource(R.string.about))
@@ -194,10 +194,10 @@ fun SettingsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
     if (state.showUrlDialog) {
         UrlDialog(
             current = settings.serverUrl,
-            onDismiss = { dispatch(DmtAction.ShowUrlDialog(false)) },
+            onDismiss = { dispatch(HertzAction.ShowUrlDialog(false)) },
             onSave = {
-                dispatch(DmtAction.Config(settings.copy(serverUrl = it)))
-                dispatch(DmtAction.ShowUrlDialog(false))
+                dispatch(HertzAction.Config(settings.copy(serverUrl = it)))
+                dispatch(HertzAction.ShowUrlDialog(false))
             },
         )
     }

@@ -20,8 +20,8 @@ import fey.hertzmusic.core.common.ListRow
 import fey.hertzmusic.core.common.SearchRow
 import fey.hertzmusic.core.common.tuiClickable
 import fey.hertzmusic.domain.model.Folder
-import fey.hertzmusic.presentation.player.DmtAction
-import fey.hertzmusic.presentation.player.DmtState
+import fey.hertzmusic.presentation.player.HertzAction
+import fey.hertzmusic.presentation.player.HertzState
 import fey.hertzmusic.ui.theme.TuiDim
 import fey.hertzmusic.ui.theme.TuiFg
 import fey.hertzmusic.ui.theme.TuiLine
@@ -29,7 +29,7 @@ import fey.hertzmusic.ui.theme.TuiSurface
 import fey.hertzmusic.util.asTime
 
 @Composable
-fun FilesPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
+fun FilesPane(state: HertzState, dispatch: (HertzAction) -> Unit) {
     val folder: Folder? = state.folders.find { it.path == state.openFolder }
 
     if (folder == null) {
@@ -40,7 +40,7 @@ fun FilesPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
 }
 
 @Composable
-private fun FolderList(state: DmtState, dispatch: (DmtAction) -> Unit) {
+private fun FolderList(state: HertzState, dispatch: (HertzAction) -> Unit) {
     if (state.folders.isEmpty()) {
         Caption(stringResource(R.string.no_files))
         return
@@ -55,7 +55,7 @@ private fun FolderList(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 state.folders.size,
             ),
             shown = state.filteredFolders.size,
-            onQuery = { dispatch(DmtAction.Query(it)) },
+            onQuery = { dispatch(HertzAction.Query(it)) },
         )
         if (state.filteredFolders.isEmpty()) {
             Caption(stringResource(R.string.no_match))
@@ -67,8 +67,8 @@ private fun FolderList(state: DmtState, dispatch: (DmtAction) -> Unit) {
                     line1 = f.name,
                     line2 = "${f.tracks.size} trk",
                     current = false,
-                    onClick = { dispatch(DmtAction.OpenFolder(f.path)) },
-                    onLongClick = { dispatch(DmtAction.Enqueue(f.tracks, f.name)) },
+                    onClick = { dispatch(HertzAction.OpenFolder(f.path)) },
+                    onLongClick = { dispatch(HertzAction.Enqueue(f.tracks, f.name)) },
                 )
             }
         }
@@ -78,8 +78,8 @@ private fun FolderList(state: DmtState, dispatch: (DmtAction) -> Unit) {
 @Composable
 private fun FolderDetail(
     folder: Folder,
-    state: DmtState,
-    dispatch: (DmtAction) -> Unit,
+    state: HertzState,
+    dispatch: (HertzAction) -> Unit,
 ) {
     LazyColumn {
         item {
@@ -91,7 +91,7 @@ private fun FolderDetail(
                     .padding(top = 6.dp)
                     .border(1.dp, TuiLine)
                     .background(TuiSurface.copy(alpha = 0.6f))
-                    .tuiClickable { dispatch(DmtAction.OpenFolder(null)) }
+                    .tuiClickable { dispatch(HertzAction.OpenFolder(null)) }
                     .padding(horizontal = 12.dp, vertical = 7.dp),
             )
             Text(
@@ -109,7 +109,7 @@ private fun FolderDetail(
                 line1 = track.title,
                 line2 = "${track.artist} · ${track.durationMs.asTime()}".lowercase(),
                 current = track.id.toString() == state.nowPlayingId,
-                onClick = { dispatch(DmtAction.PlayAt(folder.tracks, index)) },
+                onClick = { dispatch(HertzAction.PlayAt(folder.tracks, index)) },
             )
         }
     }

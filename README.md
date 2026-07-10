@@ -1,10 +1,7 @@
 # hertz
 [![release](https://img.shields.io/github/v/release/feyraftsl/hertz?style=flat-square&color=e07a2f)](https://github.com/feyraftsl/Hertz/releases/latest)
 
-hertz
-dmt fork
-
-a tui-inspired local music player for android. music helped me through a lot,
+hertz is a hertz-fork and a tui-inspired local music player for android. music helped me through a lot,
 this is the thank you note.
 
 ## what it does
@@ -48,4 +45,4 @@ no ads, no analytics, no network permission. it just plays music.
 
 ## credits
 
-@imjyotiraditya for making dmt
+([@imjyotiraditya](https://github.com/imjyotiraditya) for making hertz)

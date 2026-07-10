@@ -25,12 +25,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
-import fey.hertzmusic.presentation.main.DmtScreen
+import fey.hertzmusic.presentation.main.HertzScreen
 import fey.hertzmusic.presentation.main.SplashOverlay
-import fey.hertzmusic.presentation.player.DmtAction
+import fey.hertzmusic.presentation.player.HertzAction
 import fey.hertzmusic.presentation.player.PlayerEffect
 import fey.hertzmusic.presentation.player.PlayerViewModel
-import fey.hertzmusic.ui.theme.DMTTheme
+import fey.hertzmusic.ui.theme.HertzTheme
 import fey.hertzmusic.ui.theme.LocalAccent
 import fey.hertzmusic.ui.theme.color
 import fey.hertzmusic.util.audioPermission
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            DMTTheme {
+            HertzTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
                         ActivityResultContracts.RequestMultiplePermissions(),
                     ) { grants ->
                         playerViewModel.onIntent(
-                            DmtAction.Permission(grants[audioPermission] == true),
+                            HertzAction.Permission(grants[audioPermission] == true),
                         )
                     }
                     val requestPermissions = {
@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
                         LocalAccent provides state.settings.accent.color,
                     ) {
                         Box {
-                            DmtScreen(
+                            HertzScreen(
                                 state = state,
                                 dispatch = playerViewModel::onIntent,
                                 onRequestPermission = requestPermissions,
@@ -97,7 +97,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        playerViewModel.onIntent(DmtAction.Rescan)
+        playerViewModel.onIntent(HertzAction.Rescan)
     }
 
     private fun openEqualizer(audioSessionId: Int) {
@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            playerViewModel.onIntent(DmtAction.NoEqualizer)
+            playerViewModel.onIntent(HertzAction.NoEqualizer)
         }
     }
 }

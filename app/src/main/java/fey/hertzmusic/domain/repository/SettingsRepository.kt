@@ -1,12 +1,12 @@
 package fey.hertzmusic.domain.repository
 
-import fey.hertzmusic.domain.model.DmtSettings
+import fey.hertzmusic.domain.model.HertzSettings
 import fey.hertzmusic.domain.model.LastSession
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {
-    val settings: Flow<DmtSettings>
-    suspend fun save(settings: DmtSettings)
+    val settings: Flow<HertzSettings>
+    suspend fun save(settings: HertzSettings)
     suspend fun savedSpeed(): Float
     suspend fun saveSpeed(speed: Float)
     suspend fun savedShuffle(): Boolean

@@ -4,16 +4,16 @@ import android.graphics.Bitmap
 import androidx.media3.common.Player
 import fey.hertzmusic.domain.model.Album
 import fey.hertzmusic.domain.model.Artist
-import fey.hertzmusic.domain.model.DmtSettings
-import fey.hertzmusic.domain.model.DmtStats
+import fey.hertzmusic.domain.model.HertzSettings
+import fey.hertzmusic.domain.model.HertzStats
 import fey.hertzmusic.domain.model.Folder
 import fey.hertzmusic.domain.model.Lyrics
 import fey.hertzmusic.domain.model.Spec
 import fey.hertzmusic.domain.model.Track
 
-enum class DmtView { LIBRARY, ARTISTS, ALBUMS, SETTINGS, STATS }
+enum class HertzView { LIBRARY, ARTISTS, ALBUMS, SETTINGS, STATS }
 
-data class DmtState(
+data class HertzState(
     val hasPermission: Boolean = false,
     val scanning: Boolean = true,
     val tracks: List<Track> = emptyList(),
@@ -25,7 +25,7 @@ data class DmtState(
     val filteredArtists: List<Artist> = emptyList(),
     val folders: List<Folder> = emptyList(),
     val filteredFolders: List<Folder> = emptyList(),
-    val view: DmtView = DmtView.LIBRARY,
+    val view: HertzView = HertzView.LIBRARY,
     val openAlbum: String? = null,
     val openArtist: String? = null,
     val openFolder: String? = null,
@@ -47,39 +47,39 @@ data class DmtState(
     val sleepMinutes: Int = 0,
     val sleepLeftMs: Long = 0L,
     val speed: Float = 1f,
-    val settings: DmtSettings = DmtSettings(),
-    val stats: DmtStats = DmtStats(),
+    val settings: HertzSettings = HertzSettings(),
+    val stats: HertzStats = HertzStats(),
     val tech: List<Spec> = emptyList(),
     val error: String? = null,
     val notice: String? = null,
     val showUrlDialog: Boolean = false,
 )
 
-sealed interface DmtAction {
-    data class Permission(val granted: Boolean) : DmtAction
-    data object Rescan : DmtAction
-    data class Query(val value: String) : DmtAction
-    data class Show(val view: DmtView) : DmtAction
-    data class OpenAlbum(val name: String?) : DmtAction
-    data class OpenArtist(val name: String?) : DmtAction
-    data class OpenFolder(val path: String?) : DmtAction
-    data class PlayAt(val list: List<Track>, val index: Int) : DmtAction
-    data class Enqueue(val list: List<Track>, val label: String) : DmtAction
-    data class Jump(val index: Int) : DmtAction
-    data object TogglePlay : DmtAction
-    data object Next : DmtAction
-    data object Prev : DmtAction
-    data object ToggleShuffle : DmtAction
-    data object CycleRepeat : DmtAction
-    data class Seek(val fraction: Float) : DmtAction
-    data class Expand(val value: Boolean) : DmtAction
-    data class RemoveAt(val index: Int) : DmtAction
-    data object CycleSleep : DmtAction
-    data object CycleSpeed : DmtAction
-    data object OpenEqualizer : DmtAction
-    data object NoEqualizer : DmtAction
-    data class Config(val settings: DmtSettings) : DmtAction
-    data class ShowUrlDialog(val show: Boolean) : DmtAction
+sealed interface HertzAction {
+    data class Permission(val granted: Boolean) : HertzAction
+    data object Rescan : HertzAction
+    data class Query(val value: String) : HertzAction
+    data class Show(val view: HertzView) : HertzAction
+    data class OpenAlbum(val name: String?) : HertzAction
+    data class OpenArtist(val name: String?) : HertzAction
+    data class OpenFolder(val path: String?) : HertzAction
+    data class PlayAt(val list: List<Track>, val index: Int) : HertzAction
+    data class Enqueue(val list: List<Track>, val label: String) : HertzAction
+    data class Jump(val index: Int) : HertzAction
+    data object TogglePlay : HertzAction
+    data object Next : HertzAction
+    data object Prev : HertzAction
+    data object ToggleShuffle : HertzAction
+    data object CycleRepeat : HertzAction
+    data class Seek(val fraction: Float) : HertzAction
+    data class Expand(val value: Boolean) : HertzAction
+    data class RemoveAt(val index: Int) : HertzAction
+    data object CycleSleep : HertzAction
+    data object CycleSpeed : HertzAction
+    data object OpenEqualizer : HertzAction
+    data object NoEqualizer : HertzAction
+    data class Config(val settings: HertzSettings) : HertzAction
+    data class ShowUrlDialog(val show: Boolean) : HertzAction
 }
 
 sealed interface PlayerEffect {

@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "DMT"
+rootProject.name = "Hertz"
 include(":app")

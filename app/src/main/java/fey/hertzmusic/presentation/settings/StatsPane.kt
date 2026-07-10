@@ -24,9 +24,9 @@ import fey.hertzmusic.core.common.Caption
 import fey.hertzmusic.core.common.TuiPanel
 import fey.hertzmusic.core.common.tuiClickable
 import fey.hertzmusic.domain.model.Track
-import fey.hertzmusic.presentation.player.DmtAction
-import fey.hertzmusic.presentation.player.DmtState
-import fey.hertzmusic.presentation.player.DmtView
+import fey.hertzmusic.presentation.player.HertzAction
+import fey.hertzmusic.presentation.player.HertzState
+import fey.hertzmusic.presentation.player.HertzView
 import fey.hertzmusic.ui.theme.LocalAccent
 import fey.hertzmusic.ui.theme.TuiBright
 import fey.hertzmusic.ui.theme.TuiDim
@@ -36,7 +36,7 @@ import fey.hertzmusic.ui.theme.TuiLine
 import fey.hertzmusic.ui.theme.TuiSurface
 
 @Composable
-fun StatsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
+fun StatsPane(state: HertzState, dispatch: (HertzAction) -> Unit) {
     val top = state.stats.counts.entries
         .sortedByDescending { it.value }
         .take(10)
@@ -55,7 +55,7 @@ fun StatsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
                     .padding(top = 6.dp)
                     .border(1.dp, TuiLine)
                     .background(TuiSurface.copy(alpha = 0.6f))
-                    .tuiClickable { dispatch(DmtAction.Show(DmtView.SETTINGS)) }
+                    .tuiClickable { dispatch(HertzAction.Show(HertzView.SETTINGS)) }
                     .padding(horizontal = 12.dp, vertical = 7.dp),
             )
 
@@ -108,7 +108,7 @@ fun StatsPane(state: DmtState, dispatch: (DmtAction) -> Unit) {
                 track = track,
                 count = count,
                 fraction = count.toFloat() / maxCount,
-                onClick = { dispatch(DmtAction.PlayAt(listOf(track), 0)) },
+                onClick = { dispatch(HertzAction.PlayAt(listOf(track), 0)) },
             )
         }
     }

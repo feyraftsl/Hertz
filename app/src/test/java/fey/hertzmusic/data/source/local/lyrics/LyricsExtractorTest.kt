@@ -28,7 +28,7 @@ private fun vorbisCommentBlock(vararg entries: Pair<String, String>): ByteArray 
 }
 
 private fun flacFile(comment: ByteArray): File {
-    val file = File.createTempFile("dmt-lyrics-test", ".flac")
+    val file = File.createTempFile("hertz-lyrics-test", ".flac")
     file.deleteOnExit()
     file.outputStream().use { out ->
         out.write("fLaC".toByteArray(Charsets.ISO_8859_1))

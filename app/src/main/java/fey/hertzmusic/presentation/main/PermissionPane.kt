@@ -14,11 +14,11 @@ import androidx.compose.ui.unit.dp
 import fey.hertzmusic.R
 import fey.hertzmusic.core.common.Caption
 import fey.hertzmusic.core.common.TuiKey
-import fey.hertzmusic.presentation.player.DmtAction
+import fey.hertzmusic.presentation.player.HertzAction
 import fey.hertzmusic.ui.theme.TuiFg
 
 @Composable
-fun PermissionPane(dispatch: (DmtAction) -> Unit, onRequestPermission: () -> Unit) {
+fun PermissionPane(dispatch: (HertzAction) -> Unit, onRequestPermission: () -> Unit) {
     Column {
         Caption(stringResource(R.string.permission_title))
         Text(
@@ -34,7 +34,7 @@ fun PermissionPane(dispatch: (DmtAction) -> Unit, onRequestPermission: () -> Uni
                 onClick = onRequestPermission,
             )
             Spacer(modifier = Modifier.width(10.dp))
-            TuiKey(stringResource(R.string.rescan)) { dispatch(DmtAction.Rescan) }
+            TuiKey(stringResource(R.string.rescan)) { dispatch(HertzAction.Rescan) }
         }
     }
 }

@@ -31,7 +31,7 @@
     <string name="no_files">no folders</string>
 
     <string name="permission_title">! audio permission needed</string>
-    <string name="permission_body">dmt reads the music stored on this device. nothing leaves your phone.</string>
+    <string name="permission_body">hertz reads the music stored on this device. nothing leaves your phone.</string>
     <string name="grant">[ grant ]</string>
     <string name="rescan">[ rescan ]</string>
 

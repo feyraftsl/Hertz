@@ -158,7 +158,7 @@ class PlaybackService : MediaLibraryService() {
         super.onCreate()
         setMediaNotificationProvider(
             DefaultMediaNotificationProvider(this).apply {
-                setSmallIcon(R.drawable.ic_stat_dmt)
+                setSmallIcon(R.drawable.ic_stat_hertz)
             },
         )
         val handleAudioFocus = true

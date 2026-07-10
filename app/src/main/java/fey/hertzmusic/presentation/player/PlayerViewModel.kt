@@ -69,8 +69,8 @@ class PlayerViewModel @Inject constructor(
     private val getCoverArt: GetCoverArtUseCase,
     private val getTrackTech: GetTrackTechUseCase,
     private val dispatchers: DispatcherProvider,
-) : BaseViewModel<DmtAction, DmtState, PlayerEffect>(
-    DmtState(
+) : BaseViewModel<HertzAction, HertzState, PlayerEffect>(
+    HertzState(
         hasPermission = ContextCompat.checkSelfPermission(
             context,
             audioPermission,
@@ -136,16 +136,16 @@ class PlayerViewModel @Inject constructor(
     private fun filterFolders(folders: List<Folder>, query: String): List<Folder> =
         if (query.isBlank()) folders else folders.filter { it.name.contains(query, true) }
 
-    override fun onIntent(intent: DmtAction) {
+    override fun onIntent(intent: HertzAction) {
         val c = controller
         when (intent) {
-            is DmtAction.Permission -> {
+            is HertzAction.Permission -> {
                 reduce { it.copy(hasPermission = intent.granted) }
                 if (intent.granted) scan()
             }
 
-            DmtAction.Rescan -> scan()
-            is DmtAction.Query -> reduce {
+            HertzAction.Rescan -> scan()
+            is HertzAction.Query -> reduce {
                 it.copy(
                     query = intent.value,
                     filtered = filter(it.tracks, intent.value),
@@ -155,12 +155,12 @@ class PlayerViewModel @Inject constructor(
                 )
             }
 
-            is DmtAction.Show -> reduce { it.copy(view = intent.view) }
-            is DmtAction.OpenAlbum -> reduce { it.copy(openAlbum = intent.name) }
-            is DmtAction.OpenArtist -> reduce { it.copy(openArtist = intent.name) }
-            is DmtAction.OpenFolder -> reduce { it.copy(openFolder = intent.path) }
+            is HertzAction.Show -> reduce { it.copy(view = intent.view) }
+            is HertzAction.OpenAlbum -> reduce { it.copy(openAlbum = intent.name) }
+            is HertzAction.OpenArtist -> reduce { it.copy(openArtist = intent.name) }
+            is HertzAction.OpenFolder -> reduce { it.copy(openFolder = intent.path) }
 
-            is DmtAction.PlayAt -> c?.run {
+            is HertzAction.PlayAt -> c?.run {
                 reduce { it.copy(error = null) }
                 val (queue, startIndex) = windowQueue(intent.list, intent.index)
                 setMediaItems(
@@ -172,30 +172,30 @@ class PlayerViewModel @Inject constructor(
                 play()
             }
 
-            is DmtAction.Enqueue -> c?.run {
+            is HertzAction.Enqueue -> c?.run {
                 addMediaItems(intent.list.take(QUEUE_CAP).map { it.toMediaItem() })
                 prepare()
                 notify(context.getString(R.string.queued, intent.label))
             }
 
-            is DmtAction.Jump -> c?.run {
+            is HertzAction.Jump -> c?.run {
                 seekTo(intent.index, 0L)
                 prepare()
                 play()
             }
 
-            DmtAction.TogglePlay -> c?.togglePlayPause()
-            DmtAction.Next -> c?.seekToNext()
-            DmtAction.Prev -> c?.seekToPrevious()
-            DmtAction.ToggleShuffle -> c?.run {
+            HertzAction.TogglePlay -> c?.togglePlayPause()
+            HertzAction.Next -> c?.seekToNext()
+            HertzAction.Prev -> c?.seekToPrevious()
+            HertzAction.ToggleShuffle -> c?.run {
                 shuffleModeEnabled = !shuffleModeEnabled
                 viewModelScope.launch {
                     settingsRepository.saveShuffle(shuffleModeEnabled)
                 }
             }
-            DmtAction.CycleRepeat -> c?.cycleRepeat()
+            HertzAction.CycleRepeat -> c?.cycleRepeat()
 
-            is DmtAction.Seek -> c?.run {
+            is HertzAction.Seek -> c?.run {
                 val duration = currentState.durationMs
                 if (duration > 0) {
                     val target = (intent.fraction * duration).toLong()
@@ -204,18 +204,18 @@ class PlayerViewModel @Inject constructor(
                 }
             }
 
-            is DmtAction.Expand -> reduce { it.copy(expanded = intent.value) }
+            is HertzAction.Expand -> reduce { it.copy(expanded = intent.value) }
 
-            is DmtAction.RemoveAt -> c?.run {
+            is HertzAction.RemoveAt -> c?.run {
                 if (intent.index in 0 until mediaItemCount) removeMediaItem(intent.index)
             }
 
-            DmtAction.CycleSleep -> cycleSleep()
-            DmtAction.CycleSpeed -> cycleSpeed()
-            DmtAction.OpenEqualizer -> openEqualizer()
-            DmtAction.NoEqualizer -> notify(context.getString(R.string.no_eq))
+            HertzAction.CycleSleep -> cycleSleep()
+            HertzAction.CycleSpeed -> cycleSpeed()
+            HertzAction.OpenEqualizer -> openEqualizer()
+            HertzAction.NoEqualizer -> notify(context.getString(R.string.no_eq))
 
-            is DmtAction.Config -> {
+            is HertzAction.Config -> {
                 val old = currentState.settings
                 reduce { it.copy(settings = intent.settings) }
                 viewModelScope.launch {
@@ -226,7 +226,7 @@ class PlayerViewModel @Inject constructor(
                 if (old.onlineMode != intent.settings.onlineMode) scan()
             }
 
-            is DmtAction.ShowUrlDialog -> reduce { it.copy(showUrlDialog = intent.show) }
+            is HertzAction.ShowUrlDialog -> reduce { it.copy(showUrlDialog = intent.show) }
         }
     }
 
