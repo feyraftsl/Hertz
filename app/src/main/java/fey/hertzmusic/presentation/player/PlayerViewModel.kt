@@ -187,7 +187,12 @@ class PlayerViewModel @Inject constructor(
             DmtAction.TogglePlay -> c?.togglePlayPause()
             DmtAction.Next -> c?.seekToNext()
             DmtAction.Prev -> c?.seekToPrevious()
-            DmtAction.ToggleShuffle -> c?.run { shuffleModeEnabled = !shuffleModeEnabled }
+            DmtAction.ToggleShuffle -> c?.run {
+                shuffleModeEnabled = !shuffleModeEnabled
+                viewModelScope.launch {
+                    settingsRepository.saveShuffle(shuffleModeEnabled)
+                }
+            }
             DmtAction.CycleRepeat -> c?.cycleRepeat()
 
             is DmtAction.Seek -> c?.run {

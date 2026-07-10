@@ -11,6 +11,7 @@ import fey.hertzmusic.data.source.local.KEY_LAST_QUEUE
 import fey.hertzmusic.data.source.local.KEY_ONLINE
 import fey.hertzmusic.data.source.local.KEY_RAW
 import fey.hertzmusic.data.source.local.KEY_SERVER
+import fey.hertzmusic.data.source.local.KEY_SHUFFLE
 import fey.hertzmusic.data.source.local.KEY_SPECS
 import fey.hertzmusic.data.source.local.KEY_SPEED
 import fey.hertzmusic.data.source.local.KEY_STAT_COUNTS
@@ -67,6 +68,12 @@ class PreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun saveSpeed(speed: Float) {
         context.dmtStore.edit { it[KEY_SPEED] = speed }
+    }
+
+    override suspend fun savedShuffle(): Boolean = context.dmtStore.data.first()[KEY_SHUFFLE] ?: false
+
+    override suspend fun saveShuffle(enabled: Boolean) {
+        context.dmtStore.edit { it[KEY_SHUFFLE] = enabled }
     }
 
     override suspend fun lastSession(): LastSession? {

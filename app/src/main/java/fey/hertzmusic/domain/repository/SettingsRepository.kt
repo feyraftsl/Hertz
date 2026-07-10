@@ -9,6 +9,8 @@ interface SettingsRepository {
     suspend fun save(settings: DmtSettings)
     suspend fun savedSpeed(): Float
     suspend fun saveSpeed(speed: Float)
+    suspend fun savedShuffle(): Boolean
+    suspend fun saveShuffle(enabled: Boolean)
     suspend fun lastSession(): LastSession?
 
     suspend fun saveSession(session: LastSession)

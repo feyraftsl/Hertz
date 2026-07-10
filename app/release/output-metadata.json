@@ -4,16 +4,16 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "dev.jyotiraditya.dmt",
+  "applicationId": "fey.hertzmusic",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 10000,
-      "versionName": "1.0",
-      "outputFile": "dmt-1.0-release.apk"
+      "versionCode": 1,
+      "versionName": "0.8b",
+      "outputFile": "hertz-0.8b-release.apk"
     }
   ],
   "elementType": "File",
@@ -22,14 +22,14 @@
       "minApi": 28,
       "maxApi": 30,
       "baselineProfiles": [
-        "baselineProfiles/1/dmt-1.0-release.dm"
+        "baselineProfiles/1/hertz-0.8b-release.dm"
       ]
     },
     {
       "minApi": 31,
       "maxApi": 2147483647,
       "baselineProfiles": [
-        "baselineProfiles/0/dmt-1.0-release.dm"
+        "baselineProfiles/0/hertz-0.8b-release.dm"
       ]
     }
   ],

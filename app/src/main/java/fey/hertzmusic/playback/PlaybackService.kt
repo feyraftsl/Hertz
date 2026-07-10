@@ -201,6 +201,10 @@ class PlaybackService : MediaLibraryService() {
             configureBitPerfect(player)
         }
 
+        scope.launch {
+            player.shuffleModeEnabled = settingsRepository.savedShuffle()
+        }
+
         val keepPlaybackHistory = false
         player.addAnalyticsListener(
             PlaybackStatsListener(keepPlaybackHistory) { eventTime, playbackStats ->
@@ -220,8 +224,12 @@ class PlaybackService : MediaLibraryService() {
         )
         player.addListener(
             object : Player.Listener {
-                override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) =
+                override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
                     publishButtons()
+                    scope.launch {
+                        settingsRepository.saveShuffle(shuffleModeEnabled)
+                    }
+                }
 
                 override fun onRepeatModeChanged(repeatMode: Int) = publishButtons()
 
